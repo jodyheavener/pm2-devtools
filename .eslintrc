@@ -18,7 +18,6 @@
     "dot-notation": 0,
     "eol-last": 2,
     "eqeqeq": [2, "allow-null"],
-    "fxa/no-exclusive-tests": 2,
     "global-strict": 0,
     "handle-callback-err": 1,
     "indent": [2, 2, { "SwitchCase": 1 }],
