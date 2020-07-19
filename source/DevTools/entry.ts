@@ -1,7 +1,7 @@
 import { browser } from 'webextension-polyfill-ts';
 
 browser.devtools.panels
-  .create('PM2', '../assets/icons/favicon-48.png', '../devtools-panel.html')
+  .create('PM2', '../assets/favicon-48.png', '../devtools-panel.html')
   .then((panel) => {
     panel.onShown.addListener(() => {
       // Do something when panel is opened

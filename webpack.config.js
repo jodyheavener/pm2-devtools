@@ -121,6 +121,10 @@ module.exports = {
           'sass-loader', // Takes the Sass/SCSS file and compiles to the CSS
         ],
       },
+      {
+        test: /\.svg$/,
+        use: ['@svgr/webpack', 'url-loader'],
+      },
     ],
   },
 
@@ -128,7 +132,7 @@ module.exports = {
     // Plugin to not generate js bundle for manifest entry
     new WextManifestWebpackPlugin(),
     // Generate sourcemaps
-    new webpack.SourceMapDevToolPlugin({filename: false}),
+    new webpack.SourceMapDevToolPlugin({ filename: false }),
     new ForkTsCheckerWebpackPlugin(),
     // environmental variables
     new webpack.EnvironmentPlugin(['NODE_ENV', 'TARGET_BROWSER']),
@@ -157,9 +161,9 @@ module.exports = {
       filename: 'devtools-panel.html',
     }),
     // write css file(s) to build folder
-    new MiniCssExtractPlugin({filename: 'css/[name].css'}),
+    new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
     // copy static assets
-    new CopyWebpackPlugin([{from: 'source/assets', to: 'assets'}]),
+    new CopyWebpackPlugin([{ from: 'source/assets', to: 'assets' }]),
     // plugin to enable browser reloading in development mode
     extensionReloaderPlugin,
   ],
@@ -178,7 +182,7 @@ module.exports = {
       }),
       new OptimizeCSSAssetsPlugin({
         cssProcessorPluginOptions: {
-          preset: ['default', {discardComments: {removeAll: true}}],
+          preset: ['default', { discardComments: { removeAll: true } }],
         },
       }),
       new ZipPlugin({
