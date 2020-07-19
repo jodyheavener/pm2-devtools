@@ -18,5 +18,6 @@ type Loggable = {
   message: string;
   timestamp: number;
   appName?: string;
-  colorClass?: string;
+  processId?: string;
+  data?: any;
 };

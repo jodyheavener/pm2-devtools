@@ -6,7 +6,15 @@ import { ReactComponent as CogIcon } from '../../assets/icon-cog.svg';
 import ActionToolButton from './ActionToolButton';
 import ProcessToolButton from './ProcessToolButton';
 
-export const ToolsContainer = () => {
+type ToolsContainerProps = {
+  clearLogs: () => void;
+  refreshProcesses: () => void;
+};
+
+export const ToolsContainer = ({
+  clearLogs,
+  refreshProcesses,
+}: ToolsContainerProps) => {
   const filterInput = useRef<HTMLInputElement>(null);
   const [filterInputActive, setFilterInputActive] = useState<boolean>(false);
 
@@ -22,6 +30,7 @@ export const ToolsContainer = () => {
           Icon={TrashIcon}
           iconLabel="trash"
           containerClassName="border-r"
+          onClick={clearLogs}
         />
 
         <div onClick={onContainerClick}>
@@ -74,6 +83,7 @@ export const ToolsContainer = () => {
           Icon={RotateIcon}
           iconLabel="chevron"
           containerClassName="border-l"
+          onClick={refreshProcesses}
         />
 
         <ActionToolButton

@@ -8,7 +8,7 @@ type CommandLogProps = {
 
 export const CommandLog = ({ loggable }: CommandLogProps) => (
   <div className="flex items-start leading-4 relative z-10 -mt-px p-1 font-mono text-xs border-t border-b border-light-grey-300 dark:border-dark-grey-600 text-dark-grey-500 dark:text-light-grey-500">
-    <div className="flex-25px text-right pr-2">
+    <div className="flex-25px text-right pr-2 mt-px pt-px">
       <ChevronIcon
         role="img"
         aria-label="chevron"

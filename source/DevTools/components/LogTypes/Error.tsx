@@ -8,7 +8,7 @@ type ErrorLogProps = {
 
 export const ErrorLog = ({ loggable }: ErrorLogProps) => (
   <div className="flex items-start leading-4 relative z-10 -mt-px p-1 font-mono text-xs border-t border-b bg-pale-red-50 border-pale-red-100 text-red-700 dark:bg-pale-red-900 dark:border-pale-red-800 dark:text-pale-red-200">
-    <div className="flex-25px text-right pr-2">
+    <div className="flex-25px text-right pr-2 mt-px">
       <ErrorIcon
         role="img"
         aria-label="error"

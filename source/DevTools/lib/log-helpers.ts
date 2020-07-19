@@ -2,45 +2,89 @@ import { LoggableType, ServerState } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { ReadyState } from 'react-use-websocket';
 
-function createLog(type: LoggableType, message: string): Loggable {
-  const id = uuidv4();
-  const timestamp = new Date().getTime();
-  return {
-    id,
-    type,
-    message,
-    timestamp,
-  };
-}
-
-export function createInfo(message: string): Loggable {
-  return createLog(LoggableType.Info, message);
-}
-
-export function createAlert(message: string): Loggable {
-  return createLog(LoggableType.Alert, message);
-}
-
-export function createError(message: string): Loggable {
-  return createLog(LoggableType.Error, message);
-}
-
-export function createSuccess(message: string): Loggable {
-  return createLog(LoggableType.Success, message);
-}
-
-export function createGeneric(message: string): Loggable {
-  return createLog(LoggableType.Generic, message);
+interface LogExtras {
+  timestamp?: number;
+  appName?: string;
+  processId?: string;
+  data?: any;
 }
 
 export function logFormatTime(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString('en-US');
 }
 
+function createLog(
+  type: LoggableType,
+  message: string,
+  extras?: LogExtras
+): Loggable {
+  const id = uuidv4();
+  const timestamp = extras?.timestamp || new Date().getTime();
+
+  return {
+    id,
+    type,
+    message,
+    timestamp,
+    appName: extras?.appName,
+    processId: extras?.processId,
+    data: extras?.data,
+  };
+}
+
+export function createInfo(message: string, extras?: LogExtras): Loggable {
+  return createLog(LoggableType.Info, message, extras);
+}
+
+export function createAlert(message: string, extras?: LogExtras): Loggable {
+  return createLog(LoggableType.Alert, message, extras);
+}
+
+export function createError(message: string, extras?: LogExtras): Loggable {
+  return createLog(LoggableType.Error, message, extras);
+}
+
+export function createSuccess(message: string, extras?: LogExtras): Loggable {
+  return createLog(LoggableType.Success, message, extras);
+}
+
+export function createGeneric(message: string, extras?: LogExtras): Loggable {
+  return createLog(LoggableType.Generic, message, extras);
+}
+
+export function createCommand(message: string, extras?: LogExtras): Loggable {
+  return createLog(LoggableType.Command, message, extras);
+}
+
+export function createProcess(data: string): Loggable {
+  try {
+    const { message, timestamp, appName, processId, _event } = JSON.parse(data);
+    const eventType = _event?.type;
+
+    if (eventType === 'logs') {
+      return createLog(LoggableType.Process, message, {
+        timestamp,
+        appName,
+        processId,
+      });
+    } else if (eventType === 'status') {
+      return createInfo('Updated active processes list.', {
+        data: { command: 'status', list: message },
+      });
+    } else if (eventType === 'error') {
+      return createError(_event.error);
+    } else {
+      return createGeneric(message);
+    }
+  } catch (error) {
+    return createError('There was an issue parsing a PM2 log');
+  }
+}
+
 export function getSocketUpdate(
   currentState: ReadyState | ServerState | undefined,
   readyState: ReadyState | ServerState,
-  lastMessage?: MessageEvent
+  lastMessage: MessageEvent | undefined
 ) {
   let nextState,
     nextLog = [];
@@ -71,7 +115,7 @@ export function getSocketUpdate(
   }
 
   if (lastMessage) {
-    nextLog.push(createGeneric(lastMessage.data.toString()));
+    nextLog.push(createProcess(lastMessage.data.toString()));
   }
 
   return { nextState, nextLog };
