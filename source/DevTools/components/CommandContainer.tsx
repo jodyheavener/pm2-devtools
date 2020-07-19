@@ -1,13 +1,13 @@
-import React, { useRef, useState } from 'react';
-import { ReactComponent as Chevron } from '../../assets/icon-chevron.svg';
+import React, { useRef, useState, useCallback } from 'react';
+import { ReactComponent as ChevronIcon } from '../../assets/icon-chevron.svg';
 
 export const PromptContainer = () => {
   const commandInput = useRef<HTMLInputElement>(null);
   const [commandInputActive, setCommandInputActive] = useState<boolean>(false);
 
-  const onContainerClick = () => {
+  const onContainerClick = useCallback(() => {
     commandInput.current!.focus();
-  };
+  }, [commandInput]);
 
   return (
     <section
@@ -15,7 +15,7 @@ export const PromptContainer = () => {
       className="dark:bg-dark-grey-990 border-t border-light-grey-300 dark:border-dark-grey-600"
     >
       <form className="flex flex-row items-center px-3 py-2 cursor-text">
-        <Chevron
+        <ChevronIcon
           role="img"
           aria-label="chevron"
           className={`fill-current ${

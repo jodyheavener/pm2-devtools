@@ -27,6 +27,7 @@
     "@babel/runtime": "^7.10.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-use-websocket": "^2.1.1",
     "webext-base-css": "^1.1.0",
     "webextension-polyfill-ts": "^0.16.0"
   },

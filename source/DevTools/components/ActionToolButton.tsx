@@ -21,7 +21,7 @@ export const ActionToolButton = ({
     <button
       {...{ title, onClick }}
       type="button"
-      className="px-1 border-none text-dark-grey-500 dark:text-light-grey-500 bg-white bg-opacity-0 focus:bg-opacity-25 active:bg-opacity-25 rounded-sm"
+      className="p-1 border-none text-dark-grey-500 dark:text-light-grey-500 bg-white bg-opacity-0 focus:bg-opacity-25 active:bg-opacity-25 rounded-sm"
     >
       <Icon role="img" aria-label={iconLabel} className="fill-current" />
     </button>

@@ -4,3 +4,18 @@ declare module '\*.svg' {
   const src: string;
   export default src;
 }
+
+type Loggable = {
+  type:
+    | 'info'
+    | 'error'
+    | 'alert'
+    | 'success'
+    | 'command'
+    | 'generic'
+    | 'process';
+  message: string;
+  timestamp: number;
+  appName?: string;
+  colorClass?: string;
+};
