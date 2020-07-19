@@ -7,3 +7,7 @@ export enum LoggableType {
   Generic = 'generic',
   Command = 'command',
 }
+
+export enum ServerState {
+  ERROR = 4,
+}

@@ -6,6 +6,7 @@ declare module '\*.svg' {
 }
 
 type Loggable = {
+  id: string;
   type:
     | 'info'
     | 'error'

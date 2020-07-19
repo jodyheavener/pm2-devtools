@@ -9,29 +9,30 @@ import GenericLog from './LogTypes/Generic';
 import ProcessLog from './LogTypes/Process';
 
 type LogsContainerProps = {
-  loggables: (Loggable | undefined)[];
+  loggables: Loggable[];
 };
 
-function renderLoggable(loggable: Loggable | undefined) {
+function renderLoggable(loggable: Loggable) {
   if (!loggable) {
     return null;
   }
 
+  const key = loggable.id;
   switch (loggable.type) {
     case LoggableType.Info:
-      return <InfoLog key={loggable.timestamp} {...{ loggable }} />;
+      return <InfoLog {...{ key, loggable }} />;
     case LoggableType.Alert:
-      return <AlertLog key={loggable.timestamp} {...{ loggable }} />;
+      return <AlertLog {...{ key, loggable }} />;
     case LoggableType.Error:
-      return <ErrorLog key={loggable.timestamp} {...{ loggable }} />;
+      return <ErrorLog {...{ key, loggable }} />;
     case LoggableType.Success:
-      return <SuccessLog key={loggable.timestamp} {...{ loggable }} />;
+      return <SuccessLog {...{ key, loggable }} />;
     case LoggableType.Command:
-      return <CommandLog key={loggable.timestamp} {...{ loggable }} />;
+      return <CommandLog {...{ key, loggable }} />;
     case LoggableType.Generic:
-      return <GenericLog key={loggable.timestamp} {...{ loggable }} />;
+      return <GenericLog {...{ key, loggable }} />;
     case LoggableType.Process:
-      return <ProcessLog key={loggable.timestamp} {...{ loggable }} />;
+      return <ProcessLog {...{ key, loggable }} />;
     default:
       return null;
   }
