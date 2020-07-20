@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { LoggableType } from '../lib/types';
-import { filterByActiveProcess } from '../lib/log-helpers';
+import { filterLoggables } from '../lib/log-helpers';
 import InfoLog from './LogTypes/Info';
 import AlertLog from './LogTypes/Alert';
 import ErrorLog from './LogTypes/Error';
@@ -12,6 +12,7 @@ import ProcessLog from './LogTypes/Process';
 type LogsContainerProps = {
   loggables: Loggable[];
   processes: Process[];
+  filterQuery: string;
 };
 
 function renderLoggable(loggable: Loggable, processes: Process[]) {
@@ -47,7 +48,11 @@ function renderLoggable(loggable: Loggable, processes: Process[]) {
   }
 }
 
-export const LogsContainer = ({ loggables, processes }: LogsContainerProps) => {
+export const LogsContainer = ({
+  loggables,
+  processes,
+  filterQuery,
+}: LogsContainerProps) => {
   const logsContainer = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -56,13 +61,11 @@ export const LogsContainer = ({ loggables, processes }: LogsContainerProps) => {
     }
   });
 
-  const activeFilteredLoggables = filterByActiveProcess(loggables, processes);
+  const filteredLoggables = filterLoggables(loggables, processes, filterQuery);
 
   return (
     <section ref={logsContainer} className="flex-auto overflow-y-scroll">
-      {activeFilteredLoggables.map((loggable) =>
-        renderLoggable(loggable, processes)
-      )}
+      {filteredLoggables.map((loggable) => renderLoggable(loggable, processes))}
     </section>
   );
 };

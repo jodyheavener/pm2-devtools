@@ -8,6 +8,7 @@ import ProcessToolButton from './ProcessToolButton';
 
 type ToolsContainerProps = {
   processes: Process[];
+  setFilterQuery: (value: string) => void;
   clearLogs: () => void;
   refreshProcesses: () => void;
   toggleProcessActive: (id: string) => void;
@@ -15,6 +16,7 @@ type ToolsContainerProps = {
 
 export const ToolsContainer = ({
   processes,
+  setFilterQuery,
   clearLogs,
   refreshProcesses,
   toggleProcessActive,
@@ -24,6 +26,10 @@ export const ToolsContainer = ({
 
   const onContainerClick = useCallback(() => {
     filterInput.current!.focus();
+  }, [filterInput]);
+
+  const onFilterChange = useCallback(() => {
+    setFilterQuery(filterInput.current!.value.trim());
   }, [filterInput]);
 
   return (
@@ -38,12 +44,13 @@ export const ToolsContainer = ({
         />
 
         <div onClick={onContainerClick}>
-          <form className="flex flex-no-wrap flex-row items-center px-2 my-1 cursor-text">
+          <div className="flex flex-no-wrap flex-row items-center px-2 my-1 cursor-text">
             <FilterIcon
               role="img"
               aria-label="filter"
               className={`fill-current ${
-                filterInputActive
+                filterInputActive ||
+                (filterInput.current && filterInput.current.value.trim().length)
                   ? 'text-blue-500 dark:text-blue-300'
                   : 'text-dark-grey-500 dark:text-light-grey-500'
               }`}
@@ -57,11 +64,12 @@ export const ToolsContainer = ({
               onBlur={() => {
                 setFilterInputActive(false);
               }}
+              onKeyUp={onFilterChange}
               type="text"
               placeholder="Filter Output"
               className="ml-1 w-full h-full bg-transparent placeholder-light-grey-500 outline-none"
             />
-          </form>
+          </div>
         </div>
 
         <div className="flex-2 flex flex-no-wrap overflow-x-scroll pl-1 pr-2 my-1 border-l border-light-grey-300 dark:border-dark-grey-600">
@@ -84,7 +92,7 @@ export const ToolsContainer = ({
         </div>
 
         <ActionToolButton
-          title="PM2 DevTools settings"
+          title="Reload processes list"
           Icon={RotateIcon}
           iconLabel="chevron"
           containerClassName="border-l"
@@ -92,7 +100,7 @@ export const ToolsContainer = ({
         />
 
         <ActionToolButton
-          title="Reload processes list"
+          title="PM2 DevTools settings"
           Icon={CogIcon}
           iconLabel="cog"
           containerClassName="border-l"

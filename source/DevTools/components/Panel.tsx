@@ -12,6 +12,7 @@ export const Panel = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
   const [loggables, setLoggables] = useState<Loggable[]>([]);
   const [currentState, setCurrentState] = useState<ReadyState | ServerState>();
+  const [filterQuery, setFilterQuery] = useState<string>('');
   const [socketUrl /* setSocketUrl */] = useState<string>(
     'ws://localhost:7821'
   );
@@ -59,6 +60,10 @@ export const Panel = () => {
 
     if (nextState) {
       setCurrentState(nextState);
+
+      if (nextState === ReadyState.OPEN) {
+        submitCommand('status');
+      }
     }
 
     if (nextLog.length) {
@@ -80,9 +85,15 @@ export const Panel = () => {
   return (
     <div className="w-screen h-screen max-h-screen flex flex-col text-xs bg-white dark:bg-dark-grey-700 text-dark-grey-500 dark:text-light-grey-500">
       <ToolsContainer
-        {...{ processes, clearLogs, refreshProcesses, toggleProcessActive }}
+        {...{
+          processes,
+          clearLogs,
+          setFilterQuery,
+          refreshProcesses,
+          toggleProcessActive,
+        }}
       />
-      <LogsContainer {...{ loggables, processes }} />
+      <LogsContainer {...{ loggables, processes, filterQuery }} />
       <CommandContainer {...{ submitCommand }} />
     </div>
   );

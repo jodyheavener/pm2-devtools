@@ -121,19 +121,27 @@ export function getSocketUpdate(
   return { nextState, nextLog };
 }
 
-export function filterByActiveProcess(
+export function filterLoggables(
   loggables: Loggable[],
-  processes: Process[]
+  processes: Process[],
+  filterQuery: string
 ): Loggable[] {
   const activeProcessIds = processes
     .filter((process) => process.isActive)
     .map((process) => process.id);
 
   return loggables.filter((loggable) => {
-    if (loggable.type !== LoggableType.Process) {
-      return true;
+    let matching = true;
+    if (loggable.type === LoggableType.Process) {
+      matching = !!(
+        loggable.processId && activeProcessIds.includes(loggable.processId)
+      );
     }
 
-    return loggable.processId && activeProcessIds.includes(loggable.processId);
+    if (matching && filterQuery.length) {
+      matching = loggable.message.includes(filterQuery);
+    }
+
+    return matching;
   });
 }
