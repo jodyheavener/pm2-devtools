@@ -120,3 +120,20 @@ export function getSocketUpdate(
 
   return { nextState, nextLog };
 }
+
+export function filterByActiveProcess(
+  loggables: Loggable[],
+  processes: Process[]
+): Loggable[] {
+  const activeProcessIds = processes
+    .filter((process) => process.isActive)
+    .map((process) => process.id);
+
+  return loggables.filter((loggable) => {
+    if (loggable.type !== LoggableType.Process) {
+      return true;
+    }
+
+    return loggable.processId && activeProcessIds.includes(loggable.processId);
+  });
+}

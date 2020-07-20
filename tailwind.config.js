@@ -116,6 +116,7 @@ module.exports = {
     },
     extend: {
       flex: {
+        2: '2',
         '25px': '0 0 25px',
       },
     },

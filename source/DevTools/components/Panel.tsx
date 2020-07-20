@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { ServerState } from '../lib/types';
 import { getSocketUpdate, createCommand } from '../lib/log-helpers';
+import { formatCommand } from '../lib/command-helpers';
+import { mergeProcesses } from '../lib/process-helpers';
 import ToolsContainer from './ToolsContainer';
 import LogsContainer from './LogsContainer';
 import CommandContainer from './CommandContainer';
-import { formatCommand } from '../lib/command-helpers';
 
 export const Panel = () => {
+  const [processes, setProcesses] = useState<Process[]>([]);
   const [loggables, setLoggables] = useState<Loggable[]>([]);
   const [currentState, setCurrentState] = useState<ReadyState | ServerState>();
   const [socketUrl /* setSocketUrl */] = useState<string>(
@@ -28,11 +30,24 @@ export const Panel = () => {
   }, []);
 
   const refreshProcesses = useCallback(() => {
-    return submitCommand('status');
+    submitCommand('status');
+    setProcesses([]);
   }, []);
 
   const clearLogs = useCallback(() => {
     return setLoggables([]);
+  }, []);
+
+  const toggleProcessActive = useCallback((processId: string) => {
+    setProcesses((processes) => {
+      return processes.map((process) => {
+        if (process.id === processId) {
+          process.isActive = !process.isActive;
+        }
+
+        return process;
+      });
+    });
   }, []);
 
   useEffect(() => {
@@ -47,12 +62,15 @@ export const Panel = () => {
     }
 
     if (nextLog.length) {
-      const statusCommand = nextLog.filter(
-        (loggable) => loggable.data.command === 'status'
-      )[0];
+      // FIXME: This is hacky as hell. Fix this.
+      const statusCommand = nextLog.find(
+        (loggable) => loggable.data?.command === 'status' && loggable.data?.list
+      );
 
       if (statusCommand) {
-        console.log(statusCommand.data.list);
+        setProcesses((existing) =>
+          mergeProcesses(existing, statusCommand.data.list)
+        );
       }
 
       setLoggables((existing) => existing.concat(...nextLog));
@@ -61,8 +79,10 @@ export const Panel = () => {
 
   return (
     <div className="w-screen h-screen max-h-screen flex flex-col text-xs bg-white dark:bg-dark-grey-700 text-dark-grey-500 dark:text-light-grey-500">
-      <ToolsContainer {...{ clearLogs, refreshProcesses }} />
-      <LogsContainer {...{ loggables }} />
+      <ToolsContainer
+        {...{ processes, clearLogs, refreshProcesses, toggleProcessActive }}
+      />
+      <LogsContainer {...{ loggables, processes }} />
       <CommandContainer {...{ submitCommand }} />
     </div>
   );

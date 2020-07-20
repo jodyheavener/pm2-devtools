@@ -7,13 +7,17 @@ import ActionToolButton from './ActionToolButton';
 import ProcessToolButton from './ProcessToolButton';
 
 type ToolsContainerProps = {
+  processes: Process[];
   clearLogs: () => void;
   refreshProcesses: () => void;
+  toggleProcessActive: (id: string) => void;
 };
 
 export const ToolsContainer = ({
+  processes,
   clearLogs,
   refreshProcesses,
+  toggleProcessActive,
 }: ToolsContainerProps) => {
   const filterInput = useRef<HTMLInputElement>(null);
   const [filterInputActive, setFilterInputActive] = useState<boolean>(false);
@@ -60,22 +64,23 @@ export const ToolsContainer = ({
           </form>
         </div>
 
-        <div className="flex-auto flex flex-no-wrap overflow-x-scroll pl-1 pr-2 my-1 border-l border-light-grey-300 dark:border-dark-grey-600">
-          <ProcessToolButton
-            name="redis"
-            colorClass="bg-deep-green-600"
-            isActive={true}
-          />
-          <ProcessToolButton
-            name="auth-server"
-            colorClass="bg-pale-orange-600"
-            isActive={true}
-          />
-          <ProcessToolButton
-            name="firestore"
-            colorClass="bg-violet-700"
-            isActive={false}
-          />
+        <div className="flex-2 flex flex-no-wrap overflow-x-scroll pl-1 pr-2 my-1 border-l border-light-grey-300 dark:border-dark-grey-600">
+          {processes.map((process) => {
+            const { id, name, colorClass, isActive } = process;
+
+            return (
+              <ProcessToolButton
+                {...{
+                  key: id,
+                  toggleActive: toggleProcessActive,
+                  id,
+                  name,
+                  colorClass,
+                  isActive,
+                }}
+              />
+            );
+          })}
         </div>
 
         <ActionToolButton

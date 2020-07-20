@@ -21,3 +21,10 @@ type Loggable = {
   processId?: string;
   data?: any;
 };
+
+type Process = {
+  id: string;
+  name: string;
+  colorClass: string;
+  isActive: boolean;
+}
