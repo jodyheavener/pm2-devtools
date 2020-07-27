@@ -12,6 +12,7 @@ import ProcessLog from './LogTypes/Process';
 type LogsContainerProps = {
   loggables: Loggable[];
   processes: Process[];
+  logCount: number;
   filterQuery: string;
 };
 
@@ -51,6 +52,7 @@ function renderLoggable(loggable: Loggable, processes: Process[]) {
 export const LogsContainer = ({
   loggables,
   processes,
+  logCount,
   filterQuery,
 }: LogsContainerProps) => {
   const logsContainer = useRef<HTMLInputElement>(null);
@@ -61,7 +63,12 @@ export const LogsContainer = ({
     }
   });
 
-  const filteredLoggables = filterLoggables(loggables, processes, filterQuery);
+  const filteredLoggables = filterLoggables(
+    loggables,
+    processes,
+    logCount,
+    filterQuery
+  );
 
   return (
     <section ref={logsContainer} className="flex-auto overflow-y-scroll">

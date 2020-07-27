@@ -24,7 +24,6 @@ const extensionReloaderPlugin =
         reloadPage: true,
         entries: {
           // TODO: reload manifest on update
-          contentScript: 'contentScript',
           background: 'background',
           extensionPage: ['devTools'],
         },
@@ -60,7 +59,6 @@ module.exports = {
   entry: {
     manifest: path.join(sourcePath, 'manifest.json'),
     background: path.join(sourcePath, 'Background', 'index.ts'),
-    contentScript: path.join(sourcePath, 'ContentScript', 'index.ts'),
     devToolsEntry: path.join(sourcePath, 'DevTools', 'entry.ts'),
     devToolsPanel: path.join(sourcePath, 'DevTools', 'panel.tsx'),
   },
@@ -72,11 +70,6 @@ module.exports = {
 
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json'],
-    alias: {
-      'webextension-polyfill-ts': path.resolve(
-        path.join(__dirname, 'node_modules', 'webextension-polyfill-ts')
-      ),
-    },
   },
 
   module: {

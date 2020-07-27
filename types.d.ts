@@ -28,3 +28,11 @@ type Process = {
   colorClass: string;
   isActive: boolean;
 }
+
+type ContentScript = {
+  id: string;
+  name: string;
+  url: string;
+  code: string;
+  editing: boolean;
+}

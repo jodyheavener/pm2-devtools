@@ -1,3 +1,4 @@
+const stripAnsi = require('strip-ansi');
 import { LoggableType, ServerState } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { ReadyState } from 'react-use-websocket';
@@ -114,8 +115,9 @@ export function getSocketUpdate(
     }
   }
 
-  if (lastMessage) {
-    nextLog.push(createProcess(lastMessage.data.toString()));
+  const newMessage = lastMessage && stripAnsi(lastMessage.data.toString());
+  if (newMessage) {
+    nextLog.push(createProcess(newMessage));
   }
 
   return { nextState, nextLog };
@@ -124,11 +126,17 @@ export function getSocketUpdate(
 export function filterLoggables(
   loggables: Loggable[],
   processes: Process[],
+  logCount: number,
   filterQuery: string
 ): Loggable[] {
   const activeProcessIds = processes
     .filter((process) => process.isActive)
     .map((process) => process.id);
+
+  const loggableSize = loggables.length;
+  if (logCount && logCount <= loggableSize) {
+    loggables = loggables.slice(loggableSize - logCount, loggableSize);
+  }
 
   return loggables.filter((loggable) => {
     let matching = true;

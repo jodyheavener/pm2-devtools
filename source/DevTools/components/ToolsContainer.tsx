@@ -12,6 +12,7 @@ type ToolsContainerProps = {
   clearLogs: () => void;
   refreshProcesses: () => void;
   toggleProcessActive: (id: string) => void;
+  toggleSettings: () => void;
 };
 
 export const ToolsContainer = ({
@@ -20,6 +21,7 @@ export const ToolsContainer = ({
   clearLogs,
   refreshProcesses,
   toggleProcessActive,
+  toggleSettings,
 }: ToolsContainerProps) => {
   const filterInput = useRef<HTMLInputElement>(null);
   const [filterInputActive, setFilterInputActive] = useState<boolean>(false);
@@ -100,10 +102,11 @@ export const ToolsContainer = ({
         />
 
         <ActionToolButton
-          title="PM2 DevTools settings"
+          title="Open PM2 DevTools settings"
           Icon={CogIcon}
           iconLabel="cog"
           containerClassName="border-l"
+          onClick={toggleSettings}
         />
       </div>
     </section>

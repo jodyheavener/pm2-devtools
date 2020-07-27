@@ -1,6 +1,13 @@
-// import 'emoji-log';
-// import {browser} from 'webextension-polyfill-ts';
+import { browser, Runtime } from 'webextension-polyfill-ts';
 
-// browser.runtime.onInstalled.addListener((): void => {
-//   console.emoji('🦄', 'extension installed');
-// });
+function handleMessage(message: any, sender: Runtime.MessageSender) {
+  if (sender.url != browser.runtime.getURL('/devtools-panel.html')) {
+    return;
+  }
+
+  browser.tabs.executeScript(message.tabId, {
+    code: message.script,
+  });
+}
+
+browser.runtime.onMessage.addListener(handleMessage);

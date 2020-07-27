@@ -11,3 +11,9 @@ export enum LoggableType {
 export enum ServerState {
   ERROR = 4,
 }
+
+export enum SettingsKey {
+  WebSocketUrl = 'websocketUrl',
+  LogCount = 'logCount',
+  ContentScript = 'contentScript',
+}

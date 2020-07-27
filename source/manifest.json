@@ -13,5 +13,12 @@
   "homepage_url": "https://github.com/jodyheavener/pm2-devtools.git",
   "short_name": "PM2",
 
-  "devtools_page": "devtools-entry.html"
+  "devtools_page": "devtools-entry.html",
+
+  "background": {
+    "scripts": ["js/background.bundle.js"],
+    "__chrome|opera__persistent": false
+  },
+
+  "permissions": ["activeTab", "storage", "http://*/*", "https://*/*"]
 }
