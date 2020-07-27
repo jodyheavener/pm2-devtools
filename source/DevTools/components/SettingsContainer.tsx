@@ -24,7 +24,7 @@ export const SettingsContainer = ({
   socketUrl,
   contentScripts,
 }: SettingsContainerProps) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'scripts'>('scripts');
+  const [activeTab, setActiveTab] = useState<'general' | 'scripts'>('general');
   return (
     <>
       <header className="dark:bg-dark-grey-990 border-b border-light-grey-300 dark:border-dark-grey-600 flex flex-row items-center justify-between px-2">

@@ -30,6 +30,7 @@
     "react-ace": "^9.1.1",
     "react-dom": "^16.13.1",
     "react-use-websocket": "^2.1.1",
+    "url-pattern": "^1.0.3",
     "webext-base-css": "^1.1.0",
     "webextension-polyfill-ts": "^0.16.0"
   },

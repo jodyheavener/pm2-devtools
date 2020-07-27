@@ -4,12 +4,12 @@ import { SettingsKey } from './types';
 const defaults: { [key in SettingsKey]: string } = {
   websocketUrl: 'ws://localhost:7821',
   logCount: '100',
-  contentScript: '[]', // gets parsed
+  contentScript: '[]', // gets JSON parsed
 };
 
 export async function getOption(key: SettingsKey) {
-  const result = await browser.storage.local.get([key]);
-  return result.key || defaults[key];
+  const result = await browser.storage.local.get(key);
+  return result[key] || defaults[key];
 }
 
 export async function setOption(key: SettingsKey, value?: string) {

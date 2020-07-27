@@ -20,5 +20,5 @@
     "__chrome|opera__persistent": false
   },
 
-  "permissions": ["activeTab", "storage", "http://*/*", "https://*/*"]
+  "permissions": ["activeTab", "tabs", "storage", "http://*/*", "https://*/*"]
 }
