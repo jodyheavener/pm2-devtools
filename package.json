@@ -15,7 +15,7 @@
     "build:chrome": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack",
     "build:firefox": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=firefox webpack",
     "build:opera": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=opera webpack",
-    "build": "NODE_ENV=production yarn build-postcss && yarn build:chrome && yarn build:firefox && yarn build:opera",
+    "build": "yarn build-postcss && yarn build:chrome && yarn build:firefox && yarn build:opera",
     "dev:chrome": "yarn build-postcss && cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "dev:firefox": "yarn build-postcss && cross-env NODE_ENV=development cross-env TARGET_BROWSER=firefox webpack --watch",
     "dev:opera": "yarn build-postcss && cross-env NODE_ENV=development cross-env TARGET_BROWSER=opera webpack --watch",
