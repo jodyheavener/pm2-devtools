@@ -9,7 +9,7 @@ import ToolsContainer from './ToolsContainer';
 import LogsContainer from './LogsContainer';
 import CommandContainer from './CommandContainer';
 import SettingsContainer from './SettingsContainer';
-import { getOption, setOption } from '../lib/options';
+import { getSetting, setSetting } from '../lib/settings';
 
 export const Panel = () => {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
@@ -20,7 +20,7 @@ export const Panel = () => {
   const [logCount, setLogCount] = useState<number>(0);
   const [socketUrl, setSocketUrl] = useState<string>('');
   const [contentScripts, setContentScripts] = useState<ContentScript[]>([]);
-  const [optionsFetched, setOptionsFetched] = useState<boolean>(false);
+  const [settingsFetched, setSettingsFetched] = useState<boolean>(false);
 
   let serverState: ReadyState | ServerState | undefined;
   // FIXME: refactor so socketUrl can be async fetched
@@ -75,7 +75,7 @@ export const Panel = () => {
       if (key === SettingsKey.ContentScript) {
         storedValue = JSON.stringify(value);
       }
-      await setOption(key, storedValue);
+      await setSetting(key, storedValue);
 
       switch (key) {
         case SettingsKey.LogCount:
@@ -145,22 +145,22 @@ export const Panel = () => {
   }, [lastMessage, serverState, lastMessage]);
 
   useEffect(() => {
-    async function fetchOptions() {
-      const socketUrlOption = await getOption(SettingsKey.WebSocketUrl);
-      const logCountOption = await getOption(SettingsKey.LogCount);
-      const contentScriptOption = await getOption(SettingsKey.ContentScript);
+    async function fetchSettings() {
+      const socketUrlSetting = await getSetting(SettingsKey.WebSocketUrl);
+      const logCountSetting = await getSetting(SettingsKey.LogCount);
+      const contentScriptSetting = await getSetting(SettingsKey.ContentScript);
 
-      setSocketUrl(socketUrlOption);
-      setLogCount(logCountOption);
-      setContentScripts(JSON.parse(contentScriptOption));
-      setOptionsFetched(true);
-      sendContentScripts(JSON.parse(contentScriptOption));
+      setSocketUrl(socketUrlSetting);
+      setLogCount(logCountSetting);
+      setContentScripts(JSON.parse(contentScriptSetting));
+      setSettingsFetched(true);
+      sendContentScripts(JSON.parse(contentScriptSetting));
     }
 
-    if (!optionsFetched) {
-      fetchOptions();
+    if (!settingsFetched) {
+      fetchSettings();
     }
-  }, [optionsFetched]);
+  }, [settingsFetched]);
 
   return (
     <div className="w-screen h-screen max-h-screen flex flex-col text-xs bg-white dark:bg-dark-grey-700 text-dark-grey-500 dark:text-light-grey-500">
