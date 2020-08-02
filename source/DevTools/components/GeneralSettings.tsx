@@ -1,5 +1,5 @@
 import React from 'react';
-import { SettingsKey, ThemeValue } from '../lib/types';
+import { SettingsKey, ThemeValue } from '../../lib/types';
 import SettingsTextField from './SettingsTextField';
 import SettingsRadioField from './SettingsRadioField';
 

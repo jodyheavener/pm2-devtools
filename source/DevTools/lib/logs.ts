@@ -1,5 +1,5 @@
 const stripAnsi = require('strip-ansi');
-import { LoggableType } from './types';
+import { LoggableType } from '../../lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
 interface LogExtras {

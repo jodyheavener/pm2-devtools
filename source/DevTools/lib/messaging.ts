@@ -7,3 +7,9 @@ export function sendBrowserEvent(name: string, data: string) {
     data,
   });
 }
+
+export function sendBrowserReloadScripts() {
+  browser.runtime.sendMessage({
+    type: 'reload-scripts',
+  });
+}

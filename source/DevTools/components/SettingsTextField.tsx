@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { SettingsKey } from '../lib/types';
+import { SettingsKey } from '../../lib/types';
 
 type SettingsTextFieldProps = {
   name: SettingsKey;

@@ -4,7 +4,7 @@ import ActionToolButton from './ActionToolButton';
 import GeneralSettings from './GeneralSettings';
 import ScriptsSettings from './ScriptsSettings';
 import SettingsTabButton from './SettingsTabButton';
-import { SettingsKey, ThemeValue } from '../lib/types';
+import { SettingsKey, ThemeValue } from '../../lib/types';
 
 type SettingsContainerProps = {
   toggleSettings: () => void;

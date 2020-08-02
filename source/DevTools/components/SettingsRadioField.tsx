@@ -1,5 +1,5 @@
 import React from 'react';
-import { SettingsKey } from '../lib/types';
+import { SettingsKey } from '../../lib/types';
 
 type SettingsRadioFieldProps = {
   name: SettingsKey;
@@ -27,7 +27,10 @@ export const SettingsRadioField = ({
 
       <div className="flex">
         {options.map((option: { label: string; value: string }, index) => (
-          <label key={index} className="flex items-center dark:bg-dark-grey-800 text-sm rounded p-2 mr-2">
+          <label
+            key={index}
+            className="flex items-center dark:bg-dark-grey-800 text-sm rounded p-2 mr-2"
+          >
             <input
               type="radio"
               checked={option.value === selectedValue}

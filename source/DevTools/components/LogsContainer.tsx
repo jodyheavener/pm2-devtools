@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { LoggableType } from '../lib/types';
+import { LoggableType } from '../../lib/types';
 import { filterLoggables } from '../lib/logs';
 import InfoLog from './LogTypes/Info';
 import AlertLog from './LogTypes/Alert';

@@ -5,8 +5,8 @@ import {
   SettingsKey,
   LoggableType,
   ThemeValue,
-} from '../lib/types';
-import { getSetting, setSetting } from '../lib/settings';
+} from '../../lib/types';
+import { getSetting, setSetting } from '../../lib/settings';
 import { getSocketUpdate, createCommand } from '../lib/logs';
 import { formatCommand } from '../lib/commands';
 import { mergeProcesses } from '../lib/processes';
@@ -206,7 +206,9 @@ export const Panel = () => {
             )}
           </>
         ) : (
-          <p>Loading...</p>
+          <p className="text-center font-semibold my-5">
+            PM2 DevTools loading...
+          </p>
         )}
       </div>
     </div>

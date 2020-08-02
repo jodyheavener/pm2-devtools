@@ -1,6 +1,6 @@
 import React, { useRef, useState, useCallback } from 'react';
 import AceEditor from 'react-ace';
-import { ThemeValue } from '../lib/types';
+import { ThemeValue } from '../../lib/types';
 import TextButton from './TextButton';
 import { ReactComponent as TrashIcon } from '../../assets/icon-trash.svg';
 import 'ace-builds/src-noconflict/mode-javascript';

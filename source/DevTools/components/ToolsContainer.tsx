@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { ServerState } from '../lib/types';
+import { ServerState } from '../../lib/types';
 import ActionToolButton from './ActionToolButton';
 import ProcessToolButton from './ProcessToolButton';
 import { ReactComponent as TrashIcon } from '../../assets/icon-trash.svg';
