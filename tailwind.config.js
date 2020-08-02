@@ -3,7 +3,6 @@ const plugin = require('tailwindcss/plugin');
 module.exports = {
   purge: {
     content: ['./source/**/*.tsx', './source/**/*.html'],
-    whitelist: [],
   },
   theme: {
     fontFamily: {
