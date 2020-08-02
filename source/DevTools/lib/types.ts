@@ -9,11 +9,19 @@ export enum LoggableType {
 }
 
 export enum ServerState {
-  ERROR = 4,
+  Open = 'Connected',
+  Closed = 'Not Connected',
+  Errored = 'Connection Error',
 }
 
 export enum SettingsKey {
-  WebSocketUrl = 'websocketUrl',
+  Theme = 'theme',
+  SocketUrl = 'socketUrl',
   LogCount = 'logCount',
-  ContentScript = 'contentScript',
+  ContentScripts = 'contentScripts',
+}
+
+export enum ThemeValue {
+  Light = 'light',
+  Dark = 'dark',
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { LoggableType } from '../lib/types';
-import { filterLoggables } from '../lib/log-helpers';
+import { filterLoggables } from '../lib/logs';
 import InfoLog from './LogTypes/Info';
 import AlertLog from './LogTypes/Alert';
 import ErrorLog from './LogTypes/Error';
@@ -56,10 +56,18 @@ export const LogsContainer = ({
   filterQuery,
 }: LogsContainerProps) => {
   const logsContainer = useRef<HTMLInputElement>(null);
+  let bottomScrolled = false;
+
+  if (logsContainer.current) {
+    bottomScrolled =
+      logsContainer.current.scrollHeight - logsContainer.current.clientHeight <=
+      logsContainer.current.scrollTop + 2; // if you're within 2 pixels of the bottom
+  }
 
   useEffect(() => {
-    if (logsContainer.current) {
-      logsContainer.current.scrollTop = logsContainer.current.scrollHeight;
+    if (logsContainer.current && bottomScrolled) {
+      logsContainer.current.scrollTop =
+        logsContainer.current.scrollHeight - logsContainer.current.clientHeight;
     }
   });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { logFormatTime } from '../../lib/log-helpers';
+import { logFormatTime } from '../../lib/logs';
 
 type GenericLogProps = {
   loggable: Loggable;

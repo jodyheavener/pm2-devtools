@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactComponent as AlertIcon } from '../../../assets/icon-alert.svg';
-import { logFormatTime } from '../../lib/log-helpers';
+import { logFormatTime } from '../../lib/logs';
 
 type AlertLogProps = {
   loggable: Loggable;

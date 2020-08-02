@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { SettingsKey } from '../lib/types';
 
-type SettingsFieldProps = {
+type SettingsTextFieldProps = {
   name: SettingsKey;
   type: 'text' | 'number';
   label: string;
@@ -13,14 +13,14 @@ type SettingsFieldProps = {
   ) => Promise<void>;
 };
 
-export const SettingsField = ({
+export const SettingsTextField = ({
   name,
   type,
   label,
   description,
   defaultValue,
   onChange,
-}: SettingsFieldProps) => {
+}: SettingsTextFieldProps) => {
   const inputEl = useRef<HTMLInputElement>(null);
 
   return (
@@ -47,4 +47,4 @@ export const SettingsField = ({
   );
 };
 
-export default SettingsField;
+export default SettingsTextField;

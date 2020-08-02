@@ -4,7 +4,7 @@ import ActionToolButton from './ActionToolButton';
 import GeneralSettings from './GeneralSettings';
 import ScriptsSettings from './ScriptsSettings';
 import SettingsTabButton from './SettingsTabButton';
-import { SettingsKey } from '../lib/types';
+import { SettingsKey, ThemeValue } from '../lib/types';
 
 type SettingsContainerProps = {
   toggleSettings: () => void;
@@ -12,14 +12,16 @@ type SettingsContainerProps = {
     key: SettingsKey,
     value: string | ContentScript[]
   ) => Promise<void>;
+  theme: ThemeValue;
+  socketUrl?: string;
   logCount: number;
-  socketUrl: string;
   contentScripts: ContentScript[];
 };
 
 export const SettingsContainer = ({
   toggleSettings,
   settingChanged,
+  theme,
   logCount,
   socketUrl,
   contentScripts,
@@ -53,10 +55,12 @@ export const SettingsContainer = ({
 
       <div className="p-5 mb-5 h-full overflow-scroll">
         {activeTab === 'general' && (
-          <GeneralSettings {...{ settingChanged, logCount, socketUrl }} />
+          <GeneralSettings
+            {...{ settingChanged, theme, logCount, socketUrl }}
+          />
         )}
         {activeTab === 'scripts' && (
-          <ScriptsSettings {...{ settingChanged, contentScripts }} />
+          <ScriptsSettings {...{ settingChanged, contentScripts, theme }} />
         )}
       </div>
     </>

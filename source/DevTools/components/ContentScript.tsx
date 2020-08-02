@@ -1,9 +1,11 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react';
-import TextButton from './TextButton';
+import React, { useRef, useState, useCallback } from 'react';
 import AceEditor from 'react-ace';
+import { ThemeValue } from '../lib/types';
+import TextButton from './TextButton';
 import { ReactComponent as TrashIcon } from '../../assets/icon-trash.svg';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-tomorrow_night';
+import 'ace-builds/src-noconflict/theme-tomorrow';
 
 type ContentScriptProps = {
   contentScripts: ContentScript[];
@@ -11,9 +13,21 @@ type ContentScriptProps = {
   saveScript: (contentScript: ContentScript) => void;
   deleteScript: (id: string) => void;
   canEdit: boolean;
+  theme: ThemeValue;
 };
 
-let currentEditorValue: string;
+const getTheme = (value: ThemeValue): string => {
+  let editorTheme;
+  switch (value) {
+    case ThemeValue.Light:
+      editorTheme = 'tomorrow';
+      break;
+    case ThemeValue.Dark:
+      editorTheme = 'tomorrow_night';
+      break;
+  }
+  return editorTheme;
+};
 
 export const ContentScript = ({
   contentScripts,
@@ -21,26 +35,35 @@ export const ContentScript = ({
   saveScript,
   deleteScript,
   canEdit,
+  theme,
 }: ContentScriptProps) => {
+  const currentEditorValue = useRef<string>(contentScript.code);
   const nameField = useRef<HTMLInputElement>(null);
   const urlField = useRef<HTMLInputElement>(null);
   const editorField = useRef<AceEditor>(null);
-  const [hasChanges, setHasChanged] = useState<boolean>(false);
+  const [hasChanged, setHasChanged] = useState<boolean>(false);
 
   const markChanged = useCallback(() => {
     setHasChanged(true);
-  }, [contentScripts, nameField, urlField, editorField]);
+  }, [contentScripts, nameField, urlField, currentEditorValue.current]);
 
   const saveChanges = useCallback(() => {
     saveScript({
       id: contentScript.id,
       name: nameField.current?.value || '',
       url: urlField.current?.value || '',
-      code: currentEditorValue,
+      code: currentEditorValue.current || '',
       editing: false,
     });
     setHasChanged(false);
-  }, [contentScript, contentScripts, nameField, urlField, editorField]);
+  }, [
+    contentScript,
+    contentScripts,
+    nameField,
+    urlField,
+    currentEditorValue.current,
+    hasChanged,
+  ]);
 
   const cancelChanges = useCallback(() => {
     saveScript({
@@ -63,10 +86,6 @@ export const ContentScript = ({
     });
   }, [contentScript, contentScripts]);
 
-  useEffect(() => {
-    currentEditorValue = contentScript.code;
-  });
-
   return (
     <div className="bg-light-grey-100 dark:bg-dark-grey-670 rounded shadow mb-5">
       <div
@@ -87,7 +106,7 @@ export const ContentScript = ({
                 placeholder="Name of your script"
                 onInput={markChanged}
               />
-              {hasChanges && (
+              {hasChanged && (
                 <TextButton
                   style="vibrant"
                   label="Save Changes"
@@ -120,6 +139,7 @@ export const ContentScript = ({
               />
             </>
           )}
+
           <button
             title="Remove this script"
             type="button"
@@ -140,10 +160,11 @@ export const ContentScript = ({
             />
           </button>
         </div>
+
         {contentScript.editing && (
           <input
             ref={urlField}
-            type="text"
+            type="url"
             defaultValue={contentScript.url}
             className="block w-full dark:bg-dark-grey-800 text-sm rounded p-2 mt-3"
             placeholder="URL to execute script on"
@@ -151,24 +172,25 @@ export const ContentScript = ({
           />
         )}
       </div>
+
       {contentScript.editing && (
         <AceEditor
           ref={editorField}
           placeholder="Write JavaScript to be executed on the page..."
           mode="javascript"
-          theme="tomorrow_night"
+          theme={getTheme(theme)}
           name={contentScript.id}
           width="100%"
           height="400px"
           onChange={(newValue) => {
-            currentEditorValue = newValue;
+            currentEditorValue.current = newValue;
             markChanged();
           }}
           fontSize={13}
           showPrintMargin={true}
           showGutter={true}
           highlightActiveLine={true}
-          value={contentScript.code}
+          value={currentEditorValue.current}
           setOptions={{
             enableBasicAutocompletion: false,
             enableLiveAutocompletion: false,

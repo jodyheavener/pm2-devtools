@@ -1,59 +1,49 @@
-import { browser } from 'webextension-polyfill-ts';
 import React, { useState, useEffect, useCallback } from 'react';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { ServerState, SettingsKey, LoggableType } from '../lib/types';
-import { getSocketUpdate, createCommand } from '../lib/log-helpers';
-import { formatCommand } from '../lib/command-helpers';
-import { mergeProcesses } from '../lib/process-helpers';
+import useWebSocket from 'react-use-websocket';
+import {
+  ServerState,
+  SettingsKey,
+  LoggableType,
+  ThemeValue,
+} from '../lib/types';
+import { getSetting, setSetting } from '../lib/settings';
+import { getSocketUpdate, createCommand } from '../lib/logs';
+import { formatCommand } from '../lib/commands';
+import { mergeProcesses } from '../lib/processes';
+import { sendBrowserEvent } from '../lib/messaging';
+import SettingsContainer from './SettingsContainer';
 import ToolsContainer from './ToolsContainer';
 import LogsContainer from './LogsContainer';
 import CommandContainer from './CommandContainer';
-import SettingsContainer from './SettingsContainer';
-import { getSetting, setSetting } from '../lib/settings';
 
 export const Panel = () => {
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const [serverState, setServerState] = useState<ServerState>(
+    ServerState.Closed
+  );
   const [processes, setProcesses] = useState<Process[]>([]);
   const [loggables, setLoggables] = useState<Loggable[]>([]);
-  const [currentState, setCurrentState] = useState<ReadyState | ServerState>();
   const [filterQuery, setFilterQuery] = useState<string>('');
-  const [logCount, setLogCount] = useState<number>(0);
-  const [socketUrl, setSocketUrl] = useState<string>('');
-  const [contentScripts, setContentScripts] = useState<ContentScript[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [settingsFetched, setSettingsFetched] = useState<boolean>(false);
+  const [theme, setTheme] = useState<ThemeValue>(ThemeValue.Dark);
+  const [logCount, setLogCount] = useState<number>(0);
+  const [socketUrl, setSocketUrl] = useState<string>();
+  const [contentScripts, setContentScripts] = useState<ContentScript[]>([]);
 
-  let serverState: ReadyState | ServerState | undefined;
-  // FIXME: refactor so socketUrl can be async fetched
-  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
-    onError() {
-      serverState = ServerState.ERROR;
-      // FIXME: this won't work while socketUrl is a string because
-      // its initial value of '' will always yield a failed connection
-      // setLoggables((existing) =>
-      //   existing.concat(createError('Could not connect'))
-      // );
-    },
-  });
-
-  const sendContentScripts = (scripts: ContentScript[]) => {
-    browser.runtime.sendMessage({
-      type: 'contentScripts',
-      contentScripts: scripts,
+  const getSocketUrl = useCallback(() => {
+    return new Promise((resolve) => {
+      if (socketUrl) {
+        return resolve(socketUrl);
+      }
     });
-  };
+  }, [socketUrl]) as () => Promise<string>;
 
-  const sendEvent = (name: string, data: string) => {
-    browser.runtime.sendMessage({
-      type: 'event',
-      name,
-      data,
-    });
-  };
+  const toggleSettings = useCallback(() => {
+    return setSettingsOpen(!settingsOpen);
+  }, [settingsOpen]);
 
-  const submitCommand = useCallback((value: string) => {
-    const currentCommand = `pm2 ${value}`;
-    sendMessage(formatCommand(value));
-    setLoggables((existing) => existing.concat(createCommand(currentCommand)));
+  const clearLogs = useCallback(() => {
+    return setLoggables([]);
   }, []);
 
   const refreshProcesses = useCallback(() => {
@@ -61,36 +51,11 @@ export const Panel = () => {
     setProcesses([]);
   }, []);
 
-  const clearLogs = useCallback(() => {
-    return setLoggables([]);
+  const submitCommand = useCallback((value: string) => {
+    const currentCommand = `pm2 ${value}`;
+    sendMessage(formatCommand(value));
+    setLoggables((existing) => existing.concat(createCommand(currentCommand)));
   }, []);
-
-  const toggleSettings = useCallback(() => {
-    return setSettingsOpen(!settingsOpen);
-  }, [settingsOpen]);
-
-  const settingChanged = useCallback(
-    async (key: SettingsKey, value: string | ContentScript[]) => {
-      let storedValue: string = value as string;
-      if (key === SettingsKey.ContentScript) {
-        storedValue = JSON.stringify(value);
-      }
-      await setSetting(key, storedValue);
-
-      switch (key) {
-        case SettingsKey.LogCount:
-          setLogCount(parseInt(value as string));
-          break;
-        case SettingsKey.WebSocketUrl:
-          clearLogs();
-          setSocketUrl(value as string);
-          break;
-        case SettingsKey.ContentScript:
-          setContentScripts([...(value as ContentScript[])]);
-      }
-    },
-    []
-  );
 
   const toggleProcessActive = useCallback((processId: string) => {
     setProcesses((processes) => {
@@ -104,20 +69,73 @@ export const Panel = () => {
     });
   }, []);
 
-  useEffect(() => {
-    const { nextState, nextLog } = getSocketUpdate(
-      currentState,
-      serverState || readyState,
-      lastMessage
-    );
-
-    if (nextState) {
-      setCurrentState(nextState);
-
-      if (nextState === ReadyState.OPEN) {
-        submitCommand('status');
+  const settingChanged = useCallback(
+    async (key: SettingsKey, value: string | ContentScript[]) => {
+      let storedValue: string = value as string;
+      if (key === SettingsKey.ContentScripts) {
+        storedValue = JSON.stringify(value);
       }
+
+      await setSetting(key, storedValue);
+
+      switch (key) {
+        case SettingsKey.Theme:
+          setTheme(value as ThemeValue);
+          break;
+        case SettingsKey.LogCount:
+          setLogCount(parseInt(value as string));
+          break;
+        case SettingsKey.SocketUrl:
+          clearLogs();
+          setSocketUrl(value as string);
+          break;
+        case SettingsKey.ContentScripts:
+          setContentScripts([...(value as ContentScript[])]);
+      }
+    },
+    []
+  );
+
+  const { sendMessage, lastMessage } = useWebSocket(getSocketUrl, {
+    onOpen() {
+      setServerState(ServerState.Open);
+      submitCommand('status');
+    },
+    onClose() {
+      setServerState(ServerState.Closed);
+      setProcesses([]);
+      setLoggables([]);
+    },
+    onError() {
+      setServerState(ServerState.Errored);
+    },
+  });
+
+  useEffect(() => {
+    async function fetchSettings() {
+      const { _theme, _socketUrl, _logCount, _contentScripts } = {
+        _theme: await getSetting(SettingsKey.Theme),
+        _socketUrl: await getSetting(SettingsKey.SocketUrl),
+        _logCount: await getSetting(SettingsKey.LogCount),
+        _contentScripts: JSON.parse(
+          await getSetting(SettingsKey.ContentScripts)
+        ),
+      };
+
+      setTheme(_theme);
+      setSocketUrl(_socketUrl);
+      setLogCount(_logCount);
+      setContentScripts(_contentScripts);
+      setSettingsFetched(true);
     }
+
+    if (!settingsFetched) {
+      fetchSettings();
+    }
+  }, [settingsFetched]);
+
+  useEffect(() => {
+    const nextLog = getSocketUpdate(lastMessage);
 
     if (nextLog.length) {
       // FIXME: This is hacky as hell. Fix this.
@@ -135,68 +153,62 @@ export const Panel = () => {
         (loggable) => loggable.type === LoggableType.Process
       );
 
-      processLogs.forEach((procesLog) => {
-        sendEvent('pm2:log', procesLog.message);
-        sendEvent(`pm2:log:${procesLog.appName}`, procesLog.message);
+      processLogs.forEach((processLog) => {
+        sendBrowserEvent('pm2:log', processLog.message);
+        sendBrowserEvent(`pm2:log:${processLog.appName}`, processLog.message);
       });
 
       setLoggables((existing) => existing.concat(...nextLog));
     }
-  }, [lastMessage, serverState, lastMessage]);
-
-  useEffect(() => {
-    async function fetchSettings() {
-      const socketUrlSetting = await getSetting(SettingsKey.WebSocketUrl);
-      const logCountSetting = await getSetting(SettingsKey.LogCount);
-      const contentScriptSetting = await getSetting(SettingsKey.ContentScript);
-
-      setSocketUrl(socketUrlSetting);
-      setLogCount(logCountSetting);
-      setContentScripts(JSON.parse(contentScriptSetting));
-      setSettingsFetched(true);
-      sendContentScripts(JSON.parse(contentScriptSetting));
-    }
-
-    if (!settingsFetched) {
-      fetchSettings();
-    }
-  }, [settingsFetched]);
+  }, [lastMessage]);
 
   return (
-    <div className="w-screen h-screen max-h-screen flex flex-col text-xs bg-white dark:bg-dark-grey-700 text-dark-grey-500 dark:text-light-grey-500">
-      {settingsOpen ? (
-        <SettingsContainer
-          {...{
-            toggleSettings,
-            settingChanged,
-            logCount,
-            socketUrl,
-            contentScripts,
-          }}
-        />
-      ) : (
-        <>
-          <ToolsContainer
-            {...{
-              processes,
-              clearLogs,
-              setFilterQuery,
-              refreshProcesses,
-              toggleProcessActive,
-              toggleSettings,
-            }}
-          />
-          <LogsContainer
-            {...{
-              loggables,
-              processes,
-              logCount,
-              filterQuery,
-            }}
-          />
-          <CommandContainer {...{ submitCommand }} />
-        </>
-      )}
+    <div className={`theme-${theme}`}>
+      <div className="w-screen h-screen max-h-screen flex flex-col text-xs bg-white dark:bg-dark-grey-700 text-dark-grey-500 dark:text-light-grey-500">
+        {settingsFetched ? (
+          <>
+            {settingsOpen ? (
+              <SettingsContainer
+                {...{
+                  toggleSettings,
+                  settingChanged,
+                  theme,
+                  logCount,
+                  socketUrl,
+                  contentScripts,
+                }}
+              />
+            ) : (
+              <>
+                <ToolsContainer
+                  {...{
+                    serverState,
+                    processes,
+                    toggleSettings,
+                    clearLogs,
+                    setFilterQuery,
+                    refreshProcesses,
+                    toggleProcessActive,
+                  }}
+                />
+
+                <LogsContainer
+                  {...{
+                    loggables,
+                    processes,
+                    logCount,
+                    filterQuery,
+                  }}
+                />
+
+                <CommandContainer {...{ submitCommand }} />
+              </>
+            )}
+          </>
+        ) : (
+          <p>Loading...</p>
+        )}
+      </div>
     </div>
   );
 };

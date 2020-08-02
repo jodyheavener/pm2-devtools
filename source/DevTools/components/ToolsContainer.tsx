@@ -1,21 +1,40 @@
 import React, { useRef, useState, useCallback } from 'react';
+import { ServerState } from '../lib/types';
+import ActionToolButton from './ActionToolButton';
+import ProcessToolButton from './ProcessToolButton';
 import { ReactComponent as TrashIcon } from '../../assets/icon-trash.svg';
 import { ReactComponent as FilterIcon } from '../../assets/icon-filter.svg';
 import { ReactComponent as RotateIcon } from '../../assets/icon-rotate.svg';
 import { ReactComponent as CogIcon } from '../../assets/icon-cog.svg';
-import ActionToolButton from './ActionToolButton';
-import ProcessToolButton from './ProcessToolButton';
 
 type ToolsContainerProps = {
+  serverState: ServerState;
   processes: Process[];
+  toggleSettings: () => void;
   setFilterQuery: (value: string) => void;
   clearLogs: () => void;
   refreshProcesses: () => void;
   toggleProcessActive: (id: string) => void;
-  toggleSettings: () => void;
+};
+
+const getStateColor = (value: ServerState): string => {
+  let className;
+  switch (value) {
+    case ServerState.Open:
+      className = 'text-green-500 dark:text-green-400';
+      break;
+    case ServerState.Closed:
+      className = 'text-yellow-600 dark:text-yellow-500';
+      break;
+    case ServerState.Errored:
+      className = 'text-red-500 dark:text-rose-500';
+      break;
+  }
+  return className;
 };
 
 export const ToolsContainer = ({
+  serverState,
   processes,
   setFilterQuery,
   clearLogs,
@@ -77,6 +96,14 @@ export const ToolsContainer = ({
             className="ml-1 w-full h-full bg-transparent placeholder-light-grey-500 outline-none"
           />
         </div>
+
+        <span
+          className={`px-1 ml-1 block mr-2 leading-4 rounded-sm whitespace-no-wrap font-semibold bg-light-grey-300 dark:bg-dark-grey-200 ${getStateColor(
+            serverState
+          )}`}
+        >
+          {serverState}
+        </span>
 
         <ActionToolButton
           title="Open PM2 DevTools settings"

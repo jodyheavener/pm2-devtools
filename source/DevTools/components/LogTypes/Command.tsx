@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactComponent as ChevronIcon } from '../../../assets/icon-chevron.svg';
-import { logFormatTime } from '../../lib/log-helpers';
+import { logFormatTime } from '../../lib/logs';
 
 type CommandLogProps = {
   loggable: Loggable;

@@ -9,7 +9,7 @@ export const processColors = [
   'bg-violet-700',
 ];
 
-// This whole thing could be improved.
+// FIXME: This whole thing could be improved.
 export function mergeProcesses(
   currentProcesses: Process[],
   rawProcesses: any[]

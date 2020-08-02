@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactComponent as ErrorIcon } from '../../../assets/icon-error.svg';
-import { logFormatTime } from '../../lib/log-helpers';
+import { logFormatTime } from '../../lib/logs';
 
 type ErrorLogProps = {
   loggable: Loggable;

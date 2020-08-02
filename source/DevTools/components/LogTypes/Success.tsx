@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactComponent as SuccessIcon } from '../../../assets/icon-success.svg';
-import { logFormatTime } from '../../lib/log-helpers';
+import { logFormatTime } from '../../lib/logs';
 
 type SuccessLogProps = {
   loggable: Loggable;

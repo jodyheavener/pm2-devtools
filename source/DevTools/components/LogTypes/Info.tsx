@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactComponent as InfoIcon } from '../../../assets/icon-info.svg';
-import { logFormatTime } from '../../lib/log-helpers';
+import { logFormatTime } from '../../lib/logs';
 
 type InfoLogProps = {
   loggable: Loggable;
