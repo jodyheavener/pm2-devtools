@@ -46,9 +46,9 @@ export const Panel = () => {
     browser.runtime.sendMessage({
       type: 'event',
       name,
-      data
+      data,
     });
-  }
+  };
 
   const submitCommand = useCallback((value: string) => {
     const currentCommand = `pm2 ${value}`;
@@ -136,9 +136,9 @@ export const Panel = () => {
       );
 
       processLogs.forEach((procesLog) => {
-        sendEvent('pm2:log', procesLog.message)
+        sendEvent('pm2:log', procesLog.message);
         sendEvent(`pm2:log:${procesLog.appName}`, procesLog.message);
-      })
+      });
 
       setLoggables((existing) => existing.concat(...nextLog));
     }

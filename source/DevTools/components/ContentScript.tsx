@@ -65,7 +65,7 @@ export const ContentScript = ({
 
   useEffect(() => {
     currentEditorValue = contentScript.code;
-  })
+  });
 
   return (
     <div className="bg-light-grey-100 dark:bg-dark-grey-670 rounded shadow mb-5">
