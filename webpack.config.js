@@ -1,188 +1,97 @@
-const path = require('path');
-const webpack = require('webpack');
-const ZipPlugin = require('zip-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
-const ExtensionReloader = require('webpack-extension-reloader');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const WextManifestWebpackPlugin = require('wext-manifest-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-const viewsPath = path.join(__dirname, 'source/views');
-const sourcePath = path.join(__dirname, 'source');
-const destPath = path.join(__dirname, 'extension');
-const nodeEnv = process.env.NODE_ENV || 'development';
-const targetBrowser = process.env.TARGET_BROWSER;
+/* eslint-disable @typescript-eslint/no-var-requires */
+const path = require("path");
+const exec = require("child_process").exec;
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const WebExtWebpackPlugin = require("./_dev/web-ext-webpack-plugin");
 
-const extensionReloaderPlugin =
-  nodeEnv === 'development'
-    ? new ExtensionReloader({
-        port: 9090,
-        reloadPage: true,
-        entries: {
-          // TODO: reload manifest on update
-          background: 'background',
-          extensionPage: ['devTools'],
-        },
-      })
-    : () => {
-        this.apply = () => {};
-      };
-
-const getExtensionFileType = (browser) => {
-  if (browser === 'opera') {
-    return 'crx';
-  }
-
-  if (browser === 'firefox') {
-    return 'xpi';
-  }
-
-  return 'zip';
-};
+const nodeEnv = process.env.NODE_ENV || "development";
+const srcPath = path.join(__dirname, "src");
+const distPath = path.join(__dirname, "dist");
 
 module.exports = {
-  devtool: false, // https://github.com/webpack/webpack/issues/1194#issuecomment-560382342
-
-  stats: {
-    all: false,
-    builtAt: true,
-    errors: true,
-    hash: true,
-  },
-
+  devtool: nodeEnv === "development" ? "eval" : false,
   mode: nodeEnv,
 
   entry: {
-    manifest: path.join(sourcePath, 'manifest.json'),
-    background: path.join(sourcePath, 'Background', 'index.ts'),
-    devToolsEntry: path.join(sourcePath, 'DevTools', 'entry.ts'),
-    devToolsPanel: path.join(sourcePath, 'DevTools', 'panel.tsx'),
+    background: path.join(srcPath, "background", "background.ts"),
+    devToolsEntry: path.join(srcPath, "devtools", "entry.ts"),
+    devToolsPanel: path.join(srcPath, "devtools", "panel.tsx"),
   },
 
   output: {
-    path: path.join(destPath, targetBrowser),
-    filename: 'js/[name].bundle.js',
+    path: distPath,
+    filename: "bundles/[name].bundle.js",
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
+    alias: {
+      path: false,
+      fs: false,
+    },
   },
 
   module: {
     rules: [
       {
-        type: 'javascript/auto', // prevent webpack handling json with its own loaders,
-        test: /manifest\.json$/,
-        use: {
-          loader: 'wext-manifest-loader',
-          options: {
-            usePackageJSONVersion: true, // set to false to not use package.json version for manifest
-          },
-        },
+        test: /\.tsx?$/,
+        use: "ts-loader",
         exclude: /node_modules/,
       },
       {
-        test: /\.(js|ts)x?$/,
-        loader: 'babel-loader',
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
         exclude: /node_modules/,
-      },
-      {
-        test: /\.(sa|sc|c)ss$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader, // It creates a CSS file per JS file which contains CSS
-          },
-          {
-            loader: 'css-loader', // Takes the CSS files and returns the CSS with imports and url(...) for Webpack
-            options: {
-              sourceMap: true,
-            },
-          },
-          {
-            loader: 'postcss-loader', // For autoprefixer
-            options: {
-              ident: 'postcss',
-              // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
-              plugins: [require('autoprefixer')()],
-            },
-          },
-          'resolve-url-loader', // Rewrites relative paths in url() statements
-          'sass-loader', // Takes the Sass/SCSS file and compiles to the CSS
-        ],
       },
       {
         test: /\.svg$/,
-        use: ['@svgr/webpack', 'url-loader'],
+        use: ["@svgr/webpack", "url-loader"],
       },
     ],
   },
 
   plugins: [
-    // Plugin to not generate js bundle for manifest entry
-    new WextManifestWebpackPlugin(),
-    // Generate sourcemaps
-    new webpack.SourceMapDevToolPlugin({ filename: false }),
-    new ForkTsCheckerWebpackPlugin(),
-    // environmental variables
-    new webpack.EnvironmentPlugin(['NODE_ENV', 'TARGET_BROWSER']),
-    // delete previous build files
     new CleanWebpackPlugin({
-      cleanOnceBeforeBuildPatterns: [
-        path.join(process.cwd(), `extension/${targetBrowser}`),
-        path.join(
-          process.cwd(),
-          `extension/${targetBrowser}.${getExtensionFileType(targetBrowser)}`
-        ),
+      cleanOnceBeforeBuildPatterns: ["!manifest.json"],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: path.join(srcPath, "assets"), to: "assets" }],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(srcPath, "devtools", "entry.html"),
+      inject: "body",
+      chunks: ["devToolsEntry"],
+      filename: "devtools-entry.html",
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(srcPath, "devtools", "panel.html"),
+      inject: "body",
+      chunks: ["devToolsPanel"],
+      filename: "devtools-panel.html",
+    }),
+    {
+      apply: (compiler) => {
+        compiler.hooks.compile.tap("ManifestPlugin", () => {
+          exec(`DIST_PATH=${distPath} yarn ts-node src/createManifest.ts`, (err, stdout, stderr) => {
+            if (err) { console.log(err); }
+            if (stdout) { process.stdout.write(stdout); }
+            if (stderr) { process.stderr.write(stderr); }
+          });
+        });
+      }
+    },
+    new WebExtWebpackPlugin({
+      sourceDir: distPath,
+      startUrl: [
+        "http://localhost:6006/",
+        "about:devtools-toolbox?id=temp%40extension.dev&type=extension",
       ],
-      cleanStaleWebpackAssets: false,
-      verbose: true,
     }),
-    new HtmlWebpackPlugin({
-      template: path.join(viewsPath, 'devtools-entry.html'),
-      inject: 'body',
-      chunks: ['devToolsEntry'],
-      filename: 'devtools-entry.html',
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(viewsPath, 'devtools-panel.html'),
-      inject: 'body',
-      chunks: ['devToolsPanel'],
-      filename: 'devtools-panel.html',
-    }),
-    // write css file(s) to build folder
-    new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
-    // copy static assets
-    new CopyWebpackPlugin([{ from: 'source/assets', to: 'assets' }]),
-    // plugin to enable browser reloading in development mode
-    extensionReloaderPlugin,
   ],
-
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        cache: true,
-        parallel: true,
-        terserOptions: {
-          output: {
-            comments: false,
-          },
-        },
-        extractComments: false,
-      }),
-      new OptimizeCSSAssetsPlugin({
-        cssProcessorPluginOptions: {
-          preset: ['default', { discardComments: { removeAll: true } }],
-        },
-      }),
-      new ZipPlugin({
-        path: destPath,
-        extension: `${getExtensionFileType(targetBrowser)}`,
-        filename: `${targetBrowser}`,
-      }),
-    ],
-  },
 };

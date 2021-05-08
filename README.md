@@ -1,64 +1,89 @@
 # pm2-devtools
 
-A browser developer tools extension for PM2.
+A Firefox web extension for working with [PM2](https://github.com/Unitech/pm2).
 
-**Still in beta**
+![Preview of PM2 DevTools](preview.png)
 
-![Preview of PM2 Devtools](preview.png)
+PM2 DevTools adds a new Developer Tools panel. Some of its main capabilities include:
+
+- List, filter, and manage running processes. Processes can be started and stopped right in the panel.
+- View a live stream of logs. Search by string or regexp, exclude by process.
+- Set up scripts that can be executed directly in specific web pages using log data.
 
 ## Installation & usage
 
-- The [PM2 WebSocket](https://www.npmjs.com/package/pm2-ws) needs to be set up and running in order to receive new PM2 logs.
-- Head to the [Releases page](https://github.com/jodyheavener/pm2-devtools/releases) and download the extension for your desired browser.
-- Once installed you'll see a new Developer Tools tab. Open that and you're good to go.
-- Start setting up Settings > Scripts to be executed when PM2 events occur.
+- Ensure your PM2 services are running.
+- [PM2 WebSocket](https://www.npmjs.com/package/pm2-ws) needs to be set up and running in order to receive new PM2 logs.
+- Right now head to the [Releases page](https://github.com/jodyheavener/pm2-devtools/releases) and download the latest version. Install it from `about:debugging`.
+  - Proper Firefox Add-ons installation coming soon!
+- Once installed you'll see a new Developer Tools PM2 tab. Open that and start exploring.
 
-## Settings > General
+## Settings
 
-The extension comes with a few options to tailor your experience.
+### General
 
-### WebSocket URL
+Manage general settings from the top-right corner of the PM2 Developer Tools panel.
 
-The URL that the PM2 WebSocket is being served from.
+#### WebSocket address
 
-Default: `ws://localhost:7821` (the same default as `pm2-ws`)
+The URL where the extension can connect to the PM2 WebSocket Server. Changing this will cause the extension to attempt to re-connect to the WebSocket.
 
-### Log Output Count
+#### Log history count
 
-How many PM2 logs should be rendered? There can be quite a few depending on the activity, and too many may lead to poor performance. Note all logs are kept in memory until the panel is closed.
+How many log items to render. All logs are kept in memory until the extension is closed. This setting is mostly for performance as thousands of logs streaming in can slow things down.
 
-Default: `100`
+#### Automatically start logging
 
-### Theme
+When enabled, logs will start rendering as soon as the WebSocket server is connected. Enable this to allow Log Scripts to be executed in the background (i.e. without the Developer Tools panel open).
 
-Which theme would you like to use? Note "Light" is not the best at this time.
+### Log Scripts
 
-Default: `Dark`
+Manage Log Scripts from the bottom-right corner of the PM2 Developer Tools panel.
 
-## Settings > Scripts
+Log Scripts are JavaScript snippets that can be executed when PM2 logs are broadcast. When the extension's background script receives a new log event it will check to see if any Log Scripts have matching URLs and then execute the script's code, which will have access to the log's data, directly on the page.
 
-Use scripts to perform actions in the context of your current page. Scripts are injected when the provided script URL exactly matches the active tab's URL (this will likely be expanded in the future to allow for fuzzy URL matching).
+These are the script's options:
 
-When PM2 logs occur, an event for `pm2:logs`, as well as `pm2:logs:[process name]` is emitted to the `window`. Add listeners for these events to perform page actions. The log's message is attached to the event's `details` property.
+#### Enable this Log Script?
 
-Example:
+This can be used to turn off a Log Script without deleting it. Uncheck and the script will stop executing on the page (after you save).
 
-```javascript
-window.addEventListener('pm2:log', (event) => {
-  console.log('PM2 Log:', event.details)
-});
+#### Name
+
+The name of the Log Script. Only used for reference.
+
+#### URL
+
+Which pages should this script run on?
+
+This field is evaluated using [minimatch](https://github.com/isaacs/minimatch), so globs are supported.
+
+#### Code
+
+The code to be executed on the page, evaluated directly in the webpage. Be careful, this really does execute anything.
+
+The `data` object is available in the scope of the function and contains the log payload. You can use information from this, such as process name or ID, to further restrict when code is executed on the page.
+
+<details>
+  <summary>See an example log payload:</summary>
+
+```json
+{
+  "message": "some output from the service",
+  "timestamp": 1619810341487,
+  "pmId": 15,
+  "name": "auth-db"
+}
 ```
 
-## Commands
-
-Refer to [pm2-ws commands](https://www.npmjs.com/package/pm2-ws#commands). There are not many right now.
+</details>
 
 ## Development
 
 - Clone the package
 - `yarn install` to install dependencies
-- `yarn dev:firefox|chrome|opera` to start developing
-- `yarn build` or `yarn build:firefox|chrome|opera` to build extension packages
+- `yarn start` to start developing
+- `yarn build` build and zip a production package
 
 ## License
 
