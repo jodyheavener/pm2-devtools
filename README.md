@@ -14,8 +14,8 @@ PM2 DevTools adds a new Developer Tools panel. Some of its main capabilities inc
 
 - Ensure your PM2 services are running.
 - [PM2 WebSocket](https://www.npmjs.com/package/pm2-ws) needs to be set up and running in order to receive new PM2 logs.
-- Right now head to the [Releases page](https://github.com/jodyheavener/pm2-devtools/releases) and download the latest version. Install it from `about:debugging`.
-  - Proper Firefox Add-ons installation coming soon!
+- Download the extension from [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/pm2-devtools/).
+  - Or, get it from the [Releases page](https://github.com/jodyheavener/pm2-devtools/releases), but you'll need to install it from `about:debugging`.
 - Once installed you'll see a new Developer Tools PM2 tab. Open that and start exploring.
 
 ## Settings
